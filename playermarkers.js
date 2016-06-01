@@ -18,9 +18,7 @@
 var INTERVAL = 5 * 1000;
 var ANIMATED = true;
 
-var JSON_PATH = "/path/to/players.json";
-var IMG_PATH = "/path/to/player.php?username={username}";
-var IMG_SIZE_FACTOR = 1.0;
+var JSON_PATH = "/players.json";
 
 function PlayerMarker(ui, username, world, pos) {
 	this.ui = ui;
@@ -32,8 +30,8 @@ function PlayerMarker(ui, username, world, pos) {
 	this.marker = L.marker(this.ui.mcToLatLng(pos.x, pos.z, pos.y), {
 		title: this.username,
 		icon: L.icon({
-			iconUrl: IMG_PATH.replace("{username}", username),
-			iconSize: [16 * IMG_SIZE_FACTOR, 32 * IMG_SIZE_FACTOR],
+			iconUrl: "static/markers/steve.png",
+			iconSize: [16, 32],
 		}),
 	});
 	this.marker.addTo(this.ui.lmap);
@@ -150,27 +148,29 @@ MapPlayerMarkerHandler.prototype.updatePlayers = function(data) {
 
 	var globalPlayersOnline = [];
 	var worldPlayersOnline = 0;
-	for(var i = 0; i < data["players"].length; i++) {
-		var user = data["players"][i];
-		var username = user.username;
-		var pos = {x: user.x, z: user.z, y: user.y};
+	if(data["players"] != null) {
+		for(var i = 0; i < data["players"].length; i++) {
+			var user = data["players"][i];
+			var username = user.username;
+			var pos = {x: user.x, z: user.z, y: user.y};
 
-		var player;
+			var player;
 
-		if(user.username in this.players) {
-			player = this.players[username];
-		} else {
-			player = new PlayerMarker(ui, username, user.world, pos);
-			this.players[username] = player;
-		}
+			if(user.username in this.players) {
+				player = this.players[username];
+			} else {
+				player = new PlayerMarker(ui, username, user.world, pos);
+				this.players[username] = player;
+			}
 		
-		player.setActive(user.world == this.currentWorld);
+			player.setActive(user.world == this.currentWorld);
 
-		if(player.active) {
-			worldPlayersOnline++;
-			player.move(pos);
+			if(player.active) {
+				worldPlayersOnline++;
+				player.move(pos);
+			}
+			globalPlayersOnline.push(username);
 		}
-		globalPlayersOnline.push(username);
 	}
 	
 	for(var name in this.players) {
