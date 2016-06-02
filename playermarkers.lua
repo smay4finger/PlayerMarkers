@@ -38,7 +38,6 @@ function OnTick(TimeDelta)
 		end)
 
 		json = cJson:Serialize({players=players}, { indentation="" })
-		LOG(json)
 		f = io.open(PLAYERS_JSON .. ".tmp", "w")
 		f:write(json)
 		f:close()
